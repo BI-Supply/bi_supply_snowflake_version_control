@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE VC."VC_CHECK_DDL_DIFF"("OBJECT_TYPE" VARCHAR(16777216), "SCHEMA_NAME" VARCHAR(16777216), "OBJECT_NAME" VARCHAR(16777216))
+CREATE OR REPLACE PROCEDURE VC.VC_CHECK_DDL_DIFF("OBJECT_TYPE" VARCHAR(16777216), "SCHEMA_NAME" VARCHAR(16777216), "OBJECT_NAME" VARCHAR(16777216))
 RETURNS BOOLEAN
 LANGUAGE JAVASCRIPT
 EXECUTE AS OWNER
@@ -23,9 +23,6 @@ AS '/* Create function to execute SQLs */
        var OBJECT_NAME = executeSQL(`SELECT VC.UDF_Handle_Object_Names(''${OBJECT_NAME}'')`);
 
 	var DDL_SQL = executeSQL(`select get_ddl(''${OBJECT_TYPE}'' , ''${SCHEMA_NAME}.${OBJECT_NAME}'', true )`);
-
-
-    //   var Commit_ID =  executeSQL(`SELECT IFNULL((SELECT MAX(COMMIT_ID) FROM VC._OBJECT_DDL WHERE OBJECT_TYPE = ''${OBJECT_TYPE}'' AND SCHEMA= ''${SCHEMA_NAME}'' AND OBJECT_NAME=''${OBJECT_NAME}''),0) as MAX_COMMIT_ID`);
     var Commit_ID = executeSQL(`SELECT VC.UDF_MAX_COMMIT_ID(''${OBJECT_TYPE}'',''${SCHEMA_NAME}'',''${OBJECT_NAME}'')`);
     var DDL_SQL_BACKUP = executeSQL (`SELECT DDL_SQL FROM "VC"."_OBJECT_DDL"
                                       WHERE OBJECT_TYPE = ''${OBJECT_TYPE}''
@@ -39,15 +36,4 @@ if (DDL_SQL == DDL_SQL_BACKUP)
     else {
     return true;
      }
-
-
-/*
-        return `OBJECT_TYPE: ${OBJECT_TYPE}
-            SCHEMA_NAME: ${SCHEMA_NAME}
-            OBJECT_NAME: ${OBJECT_NAME}
-            DDL_SQL: ${DDL_SQL}
-           Commit_ID: ${Commit_ID}
-            DDL_SQL_BACKUP: ${DDL_SQL_BACKUP}
-    `
-*/
 ';

@@ -22,9 +22,6 @@ AS '/* Create function to execute SQLs */
        var OBJECT_NAME = executeSQL(`SELECT VC.UDF_Handle_Object_Names(''${OBJECT_NAME}'')`);
        var flag_difference = false;
 
-
-
-    //var Commit_ID =  executeSQL(`SELECT IFNULL((SELECT MAX(COMMIT_ID) FROM VC._OBJECT_DDL WHERE OBJECT_TYPE = ''${OBJECT_TYPE}'' AND SCHEMA= ''${SCHEMA_NAME}'' AND OBJECT_NAME=''${OBJECT_NAME}''),0) as MAX_COMMIT_ID`);
     var Commit_ID = executeSQL(`SELECT VC.UDF_MAX_COMMIT_ID(''${OBJECT_TYPE}'',''${SCHEMA_NAME}'',''${OBJECT_NAME}'')`);
     var Clone_Name = executeSQL(`SELECT VC_CLONE_NAME FROM "VC"."_OBJECT_DDL"
                                   WHERE OBJECT_TYPE = ''${OBJECT_TYPE}''

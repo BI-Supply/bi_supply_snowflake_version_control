@@ -16,12 +16,12 @@ AS '/* Create function to execute SQLs */
          return res.getColumnValue(1);
         }
 
-        /* Function that escapes single quotes with a Backslash */
+        /* Function that escapes single quotes with a backslash */
         function escapeQuote(INPUT_STRING ) {
         INPUT_STRING = INPUT_STRING.replace(/\\\\/g, "\\\\\\\\");
         return INPUT_STRING =  INPUT_STRING.replace(/''/g, "\\\\''");}
 
-        /* Function that adds the DDL with the Commit_ID, Comment etc. to the table _OBJECT_DDL */
+        /* Function that adds the DDL with the Commit_ID, comment etc. to the table _OBJECT_DDL */
         function writeDDLtoTable() { executeSQL(`INSERT INTO VC._OBJECT_DDL
                                                 (OBJECT_TYPE,
                                                 SCHEMA,
@@ -44,7 +44,7 @@ AS '/* Create function to execute SQLs */
                                                 ,''${COMMENT}''
                                                 ,current_user())`)
         };
-        /* Function that adds the Object to _AUTO_BACKUP_CONTROL so backups are created automatically */
+        /* Function that adds the object to _AUTO_BACKUP_CONTROL so backups are created automatically */
         function addToAutoBackupControl() { executeSQL(`INSERT INTO VC._AUTO_BACKUP_CONTROL
                                                         (OBJECT_TYPE,
                                                         SCHEMA,
@@ -63,7 +63,7 @@ AS '/* Create function to execute SQLs */
                                                         ,''${COMMENT}''
                                                         ,current_user())`)
         };
-        /* Function that updates _AUTO_BACKUP_CONTROL with the last Commit_ID, TS, Comment und user */
+        /* Function that updates _AUTO_BACKUP_CONTROL with the last Commit_ID, timestamp, comment and user */
         function UpdateAutoBackupControl() { executeSQL(`UPDATE VC._AUTO_BACKUP_CONTROL
                                                                 SET LAST_COMMIT_ID = ${New_Commit_ID}
                                                                     ,LAST_COMMIT_TS = current_timestamp()
@@ -76,7 +76,7 @@ AS '/* Create function to execute SQLs */
                                                                 `)
         };
 
-        /* function that gets the DDL of object and saves it in a variable */
+        /* Function that gets the DDL of object and saves it in a variable */
         function getDDL() {
         DDL_SQL = executeSQL(`select get_ddl(''${OBJECT_TYPE}'' , ''${SCHEMA_NAME}.${OBJECT_NAME}'', true )`);
         DDL_SQL = escapeQuote(DDL_SQL);
@@ -92,7 +92,7 @@ AS '/* Create function to execute SQLs */
         }
 
 
-       /* DECLARE Variables and format the input strings for consitency */
+       /* Declare Variables and format the input strings for consitency */
        var OBJECT_TYPE = executeSQL(`SELECT VC.UDF_Handle_Object_Names(''${OBJECT_TYPE}'')`);
        var SCHEMA_NAME = executeSQL(`SELECT VC.UDF_Handle_Object_Names(''${SCHEMA_NAME}'')`);
        var OBJECT_NAME = executeSQL(`SELECT VC.UDF_Handle_Object_Names(''${OBJECT_NAME}'')`);
@@ -100,8 +100,6 @@ AS '/* Create function to execute SQLs */
        var DDL_SQL = '''';
        var VC_Clone_Name = ''N/A'';
        var return_value = '''';
-       /* get the Commit_ID of the object and calculate the New_Commit_ID */
-       // var Commit_ID =  executeSQL(`SELECT IFNULL((SELECT MAX(COMMIT_ID) FROM VC._OBJECT_DDL WHERE OBJECT_TYPE = ''${OBJECT_TYPE}'' AND SCHEMA= ''${SCHEMA_NAME}'' AND OBJECT_NAME=''${OBJECT_NAME}''),0) as MAX_COMMIT_ID`);
        var Commit_ID = executeSQL(`SELECT VC.UDF_MAX_COMMIT_ID(''${OBJECT_TYPE}'',''${SCHEMA_NAME}'',''${OBJECT_NAME}'')`);
        var New_Commit_ID = Commit_ID+1;
 
@@ -115,7 +113,7 @@ AS '/* Create function to execute SQLs */
                                     }
         writeDDLtoTable();
         addToAutoBackupControl();
-        return_value = `DDL was was written into _OBJECT_DDL:
+        return_value = `DDL was written into _OBJECT_DDL:
  Object type: ${OBJECT_TYPE}
  Schema name: ${SCHEMA_NAME}
  Object name: ${OBJECT_NAME}
@@ -169,9 +167,5 @@ Commit ID:   ${Commit_ID+1}`;
            }
     }
 
-        /*
-        return_value = `DDL_Diff is ${DDL_Diff}
-                        Clone_Diff is ${Clone_Diff}`;
-        */
             return return_value;
 ';
